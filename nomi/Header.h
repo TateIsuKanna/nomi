@@ -2,53 +2,76 @@
 #include<stdio.h>
 #include<time.h>
 #include<math.h>
+#include<fstream>
+#include<iostream>
+#include<string>
 
-//TODO:’nŒ`‚Ìenumì¬
-//TODO:main‚Ì\‘¢‘Ì‚ğì(class‚Ì•û‚ª‚¢‚¢‚©‚à)
-
-//Size strcg‚¦‚È‚¢?
+//TODO:Size strcä½¿ãˆãªã„?
 const int map_width = 120;
 const int map_height = 33;
 const int block_size = 10;
 
 extern Point mainzahyo;
 extern Point goalzahyo;
-extern char map[map_height][map_width + 2];//+2‚Í\n‚Ænull•¶š
+extern char map[map_height][map_width + 2];//+2ã¯\nã¨nullæ–‡å­—
 
-void  Main2();
+void Main2();
+
+enum LR{
+	Left = false,
+	Right = true
+};
+
 
 class enemy{
 public:
-	int type;
-	Point zahyo;
-	bool walk_direction = true;
-	bool search_floor = true;
-	int search = 0;
-	void walk();
-	enemy(Point p, int t){
-		zahyo = p;
-		type = t;
-	}
-	enum type{
+	enum enemy_type{
 		hae = 1,
 		musi,
 		star
 	};
+	enemy_type type;
+	Point zahyo;
+	LR walk_direction = Right;
+	LR search_floor = Right;
+	int search = 0;
+	void walk();
+	enemy(Point p, enemy_type t){
+		zahyo = p;
+		type = t;
+	}
+
 private:
 
 };
 
+enum landform{
+	air,
+	land,
+	land2,
+	land3,
+	land4,
+	goal,
+	hae,
+	musi,
+	nomi
+};
+
 class mainchara{
-	static Point mainzahyo;
+	static Point zahyo;
+	static LR LRdirection ;
+	static double vy;
 };
 
 struct hadoken{
 	Point zahyo;
-	bool muki;
+	LR LRdirection;
 };
+
+//TODO:start enemyã«ã¾ã¨ã‚ã‚‹
 struct star_st{
 	Point zahyo;
-	Point v;
+	Vec2 v;
 };
 enum deathcause{
 	collision,
