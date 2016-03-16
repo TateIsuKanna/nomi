@@ -3,17 +3,17 @@
 void enemy::walk(){
 	switch(type){
 		case hae:
-			if(map[zahyo.y / block_size + 1][zahyo.x / block_size] != '0'){
+			if(map[zahyo.y / block_size + 1][zahyo.x / block_size] != air){
 				zahyo.y += Random(-3, 0);
-			} else if(map[zahyo.y / block_size - 1][zahyo.x / block_size] != '0'){
+			} else if(map[zahyo.y / block_size - 1][zahyo.x / block_size] != air){
 				zahyo.y += Random(0, 3);
 			} else{
 				zahyo.y += Random(-3, 3);
 			}
 
-			if(map[zahyo.y / block_size][zahyo.x / block_size + 1] != '0'){
+			if(map[zahyo.y / block_size][zahyo.x / block_size + 1] != air){
 				zahyo.x += Random(-3, 0);
-			} else if(map[zahyo.y / block_size][zahyo.x / block_size - 1] != '0'){
+			} else if(map[zahyo.y / block_size][zahyo.x / block_size - 1] != air){
 				zahyo.x += Random(0, 3);
 			} else{
 				zahyo.x += Random(-3, 3);
@@ -86,7 +86,7 @@ void enemy::spawn(){
 	//敵生成蝿
 	for(int y = 0; y < map_height; y++){
 		for(int x = 0; x < map_width; x++){
-			if(map[y][x] == hae){
+			if(map[y][x] == landform::hae){
 				enemy_list.push_back(enemy(Point(x*block_size, y*block_size), enemy::enemy_type::hae));
 				map[y][x] = air;
 			}
@@ -96,7 +96,7 @@ void enemy::spawn(){
 	//敵生成虫
 	for(int y = 0; y < map_height; y++){
 		for(int x = 0; x < map_width; x++){
-			if(map[y][x] == musi){
+			if(map[y][x] == landform::musi){
 				enemy_list.push_back(enemy(Point(x*block_size, y*block_size), enemy::enemy_type::musi));
 				map[y][x] = air;
 			}

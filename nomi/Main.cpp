@@ -6,6 +6,10 @@ Point mainzahyo;
 Point goalzahyo;
 char map[map_height][map_width + 2];//+2は\nとnull文字(マップパーサが簡易だからね)
 
+legacy::TimerMillisec enemy::star_timer;
+unsigned int enemy::shot_time = 0;
+enemy::star_st enemy::stars[3];
+
 bool DEBUG_grid;
 
 std::vector<enemy>enemy_list;
@@ -124,20 +128,15 @@ bool IsInterger_Position(int pos){
 	return (double)pos / block_size - pos / block_size == 0;
 }
 
-
-legacy::TimerMillisec enemy::star_timer;
-unsigned int enemy::shot_time = 0;
-enemy::star_st enemy::stars[3];
-
 void game_main(){
 	srand((unsigned int)time(NULL));
+	//srand('y'+'y'+'s'+'k');
 	int score = 0;
 	double main_vy = 0;
 	const Font font(40);
 	bool jump = false;
 	
 	std::vector<hadoken> hado;
-
 
 	icontexture = Texture(L"thumbnail.png");
 	haetexture = Texture(L"hae.png");
@@ -211,7 +210,6 @@ void game_main(){
 		if(Input::KeyG.clicked && Input::KeyAlt.pressed){
 			DEBUG_grid = !DEBUG_grid;
 		}
-
 
 		//UNDONE:一見壁抜けしないようになったように見えるが完全ではないと思われる
 		if(Input::KeyLeft.pressed){
