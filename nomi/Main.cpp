@@ -8,7 +8,6 @@ char map[map_height][map_width + 2];//+2は\nとnull文字(マップパーサが
 
 bool DEBUG_grid;
 
-star_st star[3];
 std::vector<enemy>enemy_list;
 LR main_muki = Left;
 
@@ -35,7 +34,7 @@ void Title(){
 	while(System::Update()){
 		font(message).draw();
 		if(Input::KeyZ.clicked){
-			Main2();
+			game_main();
 		}
 	}
 }
@@ -103,6 +102,8 @@ void draw(){
 		}
 	}
 
+	enemy::draw();
+
 	//蚤描画
 	if(main_muki == Right){
 		nomitexture.mirror().draw(mainzahyo);
@@ -110,31 +111,7 @@ void draw(){
 		nomitexture.draw(mainzahyo);
 	}
 
-	//蝿虫描画
-	for(int n = 0; n < enemy_list.size(); ++n){
-		switch(enemy_list[n].type){
-			case enemy::enemy_type::hae:
-				if(enemy_list[n].walk_direction){
-					haetexture.draw(enemy_list[n].zahyo);
-				} else{
-					haetexture.mirror().draw(enemy_list[n].zahyo);
-				}
-				break;
-			case enemy::enemy_type::musi:
-				if(enemy_list[n].walk_direction){
-					musitexture.draw(enemy_list[n].zahyo);
-				} else{
-					musitexture.mirror().draw(enemy_list[n].zahyo);
-				}
-				break;
-			default:
-				break;
-		}
-	}
-	//星描画
-	for(int n = 0; n < 3; ++n){
-		startexture.draw(star[n].zahyo);
-	}
+	
 
 	//デバッグ用グリッド
 	if(DEBUG_grid){
@@ -147,13 +124,20 @@ bool IsInterger_Position(int pos){
 	return (double)pos / block_size - pos / block_size == 0;
 }
 
-void Main2(){
+
+legacy::TimerMillisec enemy::star_timer;
+unsigned int enemy::shot_time = 0;
+enemy::star_st enemy::stars[3];
+
+void game_main(){
 	srand((unsigned int)time(NULL));
 	int score = 0;
 	double main_vy = 0;
 	const Font font(40);
 	bool jump = false;
+	
 	std::vector<hadoken> hado;
+
 
 	icontexture = Texture(L"thumbnail.png");
 	haetexture = Texture(L"hae.png");
@@ -165,7 +149,6 @@ void Main2(){
 	block2texture = Texture(L"block2.png");
 	block3texture = Texture(L"block3.png");
 	block4texture = Texture(L"block4.png");
-
 
 	//マップファイル読み込み
 	//TODO:ifstream使ってみよう
@@ -191,38 +174,9 @@ void Main2(){
 		}
 	}
 
-	//敵生成蝿
-	for(int y = 0; y < map_height; y++){
-		for(int x = 0; x < map_width; x++){
-			if(map[y][x] == hae){
-				enemy_list.push_back(enemy(Point(x*block_size, y*block_size), enemy::enemy_type::hae));
-				map[y][x] = air;
-			}
-		}
-	}
+	enemy::spawn();
 
-	//敵生成虫
-	for(int y = 0; y < map_height; y++){
-		for(int x = 0; x < map_width; x++){
-			if(map[y][x] == musi){
-				enemy_list.push_back(enemy(Point(x*block_size, y*block_size), enemy::enemy_type::musi));
-				map[y][x] = air;
-			}
-		}
-	}
-
-	//敵生成星
-	for(int n = 0; n < 3; ++n){
-		star[n].zahyo = Point(rand() % (map_width*block_size), 0);
-		double kakudo = (rand() % 120 + 30)*(Pi / 180);
-		star[n].v = Vec2(Cos(kakudo) * 6, Sin(kakudo) * 6);
-	}
-
-	//流星群到来までのタイマー☆彡☆彡☆彡
-	unsigned int shot_time = 0;
-	//HACK:廃止される?
-	legacy::TimerMillisec star_timer;
-	star_timer.start();
+	enemy::star_timer.start();
 
 	while(System::Update()){
 		Rect main_rect(mainzahyo, block_size, block_size);
@@ -237,7 +191,6 @@ void Main2(){
 
 		draw();
 
-		//ゴール
 		//HACK:ゴールが壁扱いなので当たれるように1pixel拡大
 		Rect goal_rect(goalzahyo - Point(1, 1), block_size + 2, block_size + 2);
 		if(main_rect.intersects(goal_rect)){
@@ -396,26 +349,9 @@ void Main2(){
 		font(hado.size()).draw(300, 0);
 		//デバッグ表示
 		font(mainzahyo).draw(0, 300);
-
-		//流星群移動
-		if(star_timer.elapsed() > shot_time){
-			star_timer.pause();
-		}
-		if(star_timer.isPaused){
-			for(int i = 0; i < 3; ++i){
-				//HACK:Pointに対してVec2を足したい
-				star[i].zahyo.x += star[i].v.x;
-				star[i].zahyo.y += star[i].v.y;
-				Rect star_rect(star[i].zahyo, block_size, block_size);
-				if(main_rect.intersects(star_rect)){
-					The_end(collision);
-				}
-			}
-		}
 	}
 }
 
-//HACK:Main&Main2
 void Main(){
 	Title();
 }
