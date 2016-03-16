@@ -36,11 +36,11 @@ public:
 	LR search_floor = Right;
 	int search = 0;
 	void walk();
+
 	enemy(Point p, enemy_type t){
 		zahyo = p;
 		type = t;
 	}
-
 private:
 
 };
