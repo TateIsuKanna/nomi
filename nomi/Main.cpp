@@ -87,19 +87,19 @@ void draw(){
 	for(int y = 0; y < map_height; y++){
 		for(int x = 0; x < map_width; x++){
 			switch(map[y][x]){
-				case land:
+				case landform_land:
 					block1texture.draw(x * block_size, y * block_size);
 					break;
-				case land2:
+				case landform_land2:
 					block2texture.draw(x * block_size, y * block_size);
 					break;
-				case land3:
+				case landform_land3:
 					block3texture.draw(x * block_size, y * block_size);
 					break;
-				case land4:
+				case landform_land4:
 					block4texture.draw(x * block_size, y * block_size);
 					break;
-				case goal:
+				case landform_goal:
 					Rect(x * block_size, y * block_size, block_size, block_size).draw(Palette::Red);
 					break;
 			}
@@ -115,7 +115,7 @@ void draw(){
 		nomitexture.draw(mainzahyo);
 	}
 
-	
+
 
 	//デバッグ用グリッド
 	if(DEBUG_grid){
@@ -135,7 +135,7 @@ void game_main(){
 	double main_vy = 0;
 	const Font font(40);
 	bool jump = false;
-	
+
 	std::vector<hadoken> hado;
 
 	icontexture = Texture(L"thumbnail.png");
@@ -164,10 +164,10 @@ void game_main(){
 	//ゴールと蚤の位置をmapから読み取る
 	for(int y = 0; y < map_height; y++){
 		for(int x = 0; x < map_width; x++){
-			if(map[y][x] == goal){
+			if(map[y][x] == landform_goal){
 				goalzahyo = Point(x * block_size, y * block_size);
 			}
-			if(map[y][x] == nomi){
+			if(map[y][x] == landform_nomi){
 				mainzahyo = Point(x * block_size, y * block_size);
 			}
 		}
@@ -215,7 +215,7 @@ void game_main(){
 		if(Input::KeyLeft.pressed){
 			main_muki = Left;
 			if(IsInterger_Position(mainzahyo.x)){
-				if(map[mainzahyo.y / block_size][mainzahyo.x / block_size - 1] == air){
+				if(map[mainzahyo.y / block_size][mainzahyo.x / block_size - 1] == landform_air){
 					mainzahyo.x -= 2;
 					if(Input::KeyShift.pressed)mainzahyo.x -= 2;
 				} else{
@@ -228,7 +228,7 @@ void game_main(){
 		}
 		if(Input::KeyRight.pressed){
 			main_muki = Right;
-			if(map[mainzahyo.y / block_size][mainzahyo.x / block_size + 1] == air){
+			if(map[mainzahyo.y / block_size][mainzahyo.x / block_size + 1] == landform_air){
 				mainzahyo.x += 2;
 				if(Input::KeyShift.pressed)mainzahyo.x += 2;
 			} else{
@@ -251,7 +251,7 @@ void game_main(){
 			mainzahyo.y += main_vy;//速度積分
 			if(main_vy < 0){
 				//天井衝突反転
-				if(map[mainzahyo.y / block_size][mainzahyo.x / block_size] != air || map[mainzahyo.y / block_size][mainzahyo.x / block_size + 1] != air){
+				if(map[mainzahyo.y / block_size][mainzahyo.x / block_size] != landform_air || map[mainzahyo.y / block_size][mainzahyo.x / block_size + 1] != landform_air){
 					OutputDebugString(L"天井衝突反転");
 					main_vy *= -1;
 					mainzahyo.y = (mainzahyo.y / block_size + 1) * block_size;
@@ -262,14 +262,14 @@ void game_main(){
 				//UNDONE:もう少し確認
 				if(IsInterger_Position(mainzahyo.x)){
 					OutputDebugString(L"t");
-					if(map[mainzahyo.y / block_size + 1][mainzahyo.x / block_size] != air){
+					if(map[mainzahyo.y / block_size + 1][mainzahyo.x / block_size] != landform_air){
 						main_vy = 0;
 						jump = false;
 						mainzahyo.y = mainzahyo.y / block_size * block_size;
 					}
 				} else{
 					OutputDebugString(L"f");
-					if(map[mainzahyo.y / block_size + 1][mainzahyo.x / block_size] != air || map[mainzahyo.y / block_size + 1][mainzahyo.x / block_size + 1] != air){
+					if(map[mainzahyo.y / block_size + 1][mainzahyo.x / block_size] != landform_air || map[mainzahyo.y / block_size + 1][mainzahyo.x / block_size + 1] != landform_air){
 						main_vy = 0;
 						jump = false;
 						mainzahyo.y = mainzahyo.y / block_size * block_size;
@@ -285,7 +285,7 @@ void game_main(){
 		}
 
 		//下が床以外ならジャンプ
-		if(!jump && main_vy == 0 && map[mainzahyo.y / block_size + 1][mainzahyo.x / block_size] == air && map[mainzahyo.y / block_size + 1][mainzahyo.x / block_size + 1] == air){
+		if(!jump && main_vy == 0 && map[mainzahyo.y / block_size + 1][mainzahyo.x / block_size] == landform_air && map[mainzahyo.y / block_size + 1][mainzahyo.x / block_size + 1] == landform_air){
 			main_vy = -2;
 			jump = true;
 		}
@@ -300,21 +300,21 @@ void game_main(){
 			std::vector<hadoken>::iterator hado_iterator = hado.begin();
 			if(hado[n].LRdirection){
 				if(IsInterger_Position(mainzahyo.y)){
-					if(map[hado[n].zahyo.y / block_size][hado[n].zahyo.x / block_size + 1] != air){
+					if(map[hado[n].zahyo.y / block_size][hado[n].zahyo.x / block_size + 1] != landform_air){
 						hado_iterator = hado.erase(hado_iterator + n);
 					}
 				} else{
-					if(map[hado[n].zahyo.y / block_size][hado[n].zahyo.x / block_size + 1] != air || map[hado[n].zahyo.y / block_size + 1][hado[n].zahyo.x / block_size + 1] != air){
+					if(map[hado[n].zahyo.y / block_size][hado[n].zahyo.x / block_size + 1] != landform_air || map[hado[n].zahyo.y / block_size + 1][hado[n].zahyo.x / block_size + 1] != landform_air){
 						hado_iterator = hado.erase(hado_iterator + n);
 					}
 				}
 			} else{
 				if(IsInterger_Position(mainzahyo.y)){
-					if(map[hado[n].zahyo.y / block_size][hado[n].zahyo.x / block_size - 1] != air){
+					if(map[hado[n].zahyo.y / block_size][hado[n].zahyo.x / block_size - 1] != landform_air){
 						hado_iterator = hado.erase(hado_iterator + n);
 					}
 				} else{
-					if(map[hado[n].zahyo.y / block_size][hado[n].zahyo.x / block_size - 1] != air || map[hado[n].zahyo.y / block_size + 1][hado[n].zahyo.x / block_size - 1] != air){
+					if(map[hado[n].zahyo.y / block_size][hado[n].zahyo.x / block_size - 1] != landform_air || map[hado[n].zahyo.y / block_size + 1][hado[n].zahyo.x / block_size - 1] != landform_air){
 						hado_iterator = hado.erase(hado_iterator + n);
 					}
 				}

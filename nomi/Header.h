@@ -10,7 +10,6 @@
 
 //TODO:Size strc使えない?
 
-
 const int map_width = 120;
 const int map_height = 33;
 const int block_size = 10;
@@ -26,9 +25,9 @@ enum LR{
 class enemy{
 public:
 	enum enemy_type{
-		hae = 1,
-		musi,
-		star
+		enemy_type_hae = 1,
+		enemy_type_musi,
+		enemy_type_star
 	};
 	enemy_type type;
 	Point zahyo;
@@ -43,7 +42,7 @@ public:
 	static unsigned int shot_time;
 	//HACK:廃止される?
 	static legacy::TimerMillisec star_timer;
-	
+
 	enemy(Point p, enemy_type t){
 		zahyo = p;
 		type = t;
@@ -67,20 +66,20 @@ private:
 
 
 enum landform{
-	air,
-	land,
-	land2,
-	land3,
-	land4,
-	goal,
-	hae,
-	musi,
-	nomi
+	landform_air,
+	landform_land,
+	landform_land2,
+	landform_land3,
+	landform_land4,
+	landform_goal,
+	landform_hae,
+	landform_musi,
+	landform_nomi
 };
 
 class mainchara{
 	static Point zahyo;
-	static LR LRdirection ;
+	static LR LRdirection;
 	static double vy;
 };
 
