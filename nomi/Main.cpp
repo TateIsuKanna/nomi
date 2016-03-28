@@ -86,8 +86,8 @@ void draw(){
 	background.scale(3).draw();
 
 	//map描画
-	for(int y = corner_pos.y / block_size; y < corner_pos.y / block_size + view_height; y++){
-		for(int x = corner_pos.x / block_size; x < corner_pos.x / block_size + view_width; x++){
+	for(int y = corner_pos.y / block_size; y < corner_pos.y / block_size + view_height + 1; y++){
+		for(int x = corner_pos.x / block_size; x < corner_pos.x / block_size + view_width + 1; x++){
 			switch(map[y][x]){
 				case landform_land:
 					block1texture.draw(x * block_size - corner_pos.x, y * block_size - corner_pos.y);
@@ -157,6 +157,9 @@ void game_main(){
 	while(fgets(&map[linep][0], map_width + 2, fp))linep += 1;
 	for(int y = 0; y < map_height; ++y){
 		for(int x = 0; x < map_width; ++x){
+			if(map[y][x] == ' '){
+				map[y][x] = '0';
+			}
 			map[y][x] -= '0';
 		}
 	}
@@ -165,7 +168,7 @@ void game_main(){
 	for(int y = 0; y < map_height; y++){
 		for(int x = 0; x < map_width; x++){
 			if(map[y][x] == landform_goal){
-				goalzahyo = Point(x * block_size - corner_pos.x, y * block_size - corner_pos.y);
+				goalzahyo = Point(3060,1280);//Point(x * block_size - corner_pos.x, y * block_size - corner_pos.y);
 			}
 			if(map[y][x] == landform_nomi){
 				mainzahyo = Point(x * block_size, y * block_size);
@@ -191,12 +194,13 @@ void game_main(){
 
 		draw();
 
-		//HACK:ゴールが壁扱いなので当たれるように1pixel拡大
-		Rect goal_rect(goalzahyo - Point(1, 1), block_size + 2, block_size + 2);
+		//HACK:ゴールが壁扱いなので当たれるように3pixel拡大
+		Rect goal_rect(goalzahyo - Point(5, 5), block_size + 10, block_size + 10);
 		if(main_rect.intersects(goal_rect)){
 			Clear();
 		}
 
+		//画面スクロール
 		if(mainzahyo.x < view_width / 2 * block_size){
 			corner_pos.x = 0;
 		} else if(mainzahyo.x >(map_width - view_width / 2)*block_size){
@@ -214,7 +218,7 @@ void game_main(){
 
 		//デバッグのための
 		if(Input::KeyControl.clicked){
-			mainzahyo = Mouse::Pos();
+			mainzahyo = Mouse::Pos()+corner_pos;
 			main_vy = 0;
 		}
 		if(Input::KeyA.pressed){
@@ -351,9 +355,9 @@ void game_main(){
 		for(int n = 0; n < hado.size(); ++n){
 			Rect(hado[n].zahyo - corner_pos, block_size, block_size).draw(Palette::Aliceblue);
 			if(hado[n].LRdirection){
-				hado[n].zahyo.x += 5;
+				hado[n].zahyo.x += 10;
 			} else{
-				hado[n].zahyo.x -= 5;
+				hado[n].zahyo.x -= 10;
 			}
 		}
 

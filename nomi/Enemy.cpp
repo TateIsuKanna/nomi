@@ -22,9 +22,9 @@ void enemy::walk(){
 			break;
 		case enemy_type_musi:
 			if(walk_direction == Right){
-				zahyo.x += 1;
+				zahyo.x += 2;
 			} else{
-				zahyo.x -= 1;
+				zahyo.x -= 2;
 			}
 			//落下回避
 			if(map[zahyo.y / block_size + 1][zahyo.x / block_size + 1] == landform_air){ walk_direction = Left; }
