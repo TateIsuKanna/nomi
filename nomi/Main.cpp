@@ -1,6 +1,6 @@
 ﻿#include"Header.h"
-#include<HamFramework.hpp>
-#include<windows.h>
+//#include<HamFramework.hpp>
+//#include<windows.h>
 
 Point corner_pos(0, 0);
 
@@ -29,7 +29,7 @@ Texture block3texture;
 Texture block4texture;
 
 void Title(){
-	Window::Resize(1190, 500);
+	Window::Resize(view_width*block_size, view_height*block_size);
 	Window::SetTitle(L"蚤");
 
 	enemy_list.clear();
@@ -86,8 +86,8 @@ void draw(){
 	background.scale(3).draw();
 
 	//map描画
-	for(int y = corner_pos.y / block_size; y < corner_pos.y / block_size + map_height; y++){
-		for(int x = corner_pos.x / block_size; x < corner_pos.x / block_size + 60; x++){
+	for(int y = corner_pos.y / block_size; y < corner_pos.y / block_size + view_height; y++){
+		for(int x = corner_pos.x / block_size; x < corner_pos.x / block_size + view_width; x++){
 			switch(map[y][x]){
 				case landform_land:
 					block1texture.draw(x * block_size - corner_pos.x, y * block_size - corner_pos.y);
@@ -130,7 +130,7 @@ bool IsInterger_Position(int pos){
 
 void game_main(){
 	srand((unsigned int)time(NULL));
-	srand('y' + 'y' + 's' + 'k');
+	//srand('y' + 'y' + 's' + 'k');
 	int score = 0;
 	double main_vy = 0;
 	const Font font(40);
@@ -169,6 +169,7 @@ void game_main(){
 			}
 			if(map[y][x] == landform_nomi){
 				mainzahyo = Point(x * block_size, y * block_size);
+				map[y][x] = landform_air;
 			}
 		}
 	}
@@ -196,7 +197,20 @@ void game_main(){
 			Clear();
 		}
 
-		corner_pos = mainzahyo - Point(120 /2/2 * block_size, 33 / 2 * block_size);
+		if(mainzahyo.x < view_width / 2 * block_size){
+			corner_pos.x = 0;
+		} else if(mainzahyo.x >(map_width - view_width / 2)*block_size){
+			corner_pos.x = (map_width - view_width)* block_size;
+		} else{
+			corner_pos.x = mainzahyo.x - (view_width / 2 * block_size);
+		}
+		if(mainzahyo.y < view_height / 2 * block_size){
+			corner_pos.y = 0;
+		} else if(mainzahyo.y >(map_height - view_height / 2)*block_size){
+			corner_pos.y = (map_height - view_height)* block_size;
+		} else{
+			corner_pos.y = mainzahyo.y - view_height / 2 * block_size;
+		}
 
 		//デバッグのための
 		if(Input::KeyControl.clicked){
@@ -233,22 +247,18 @@ void game_main(){
 			if(map[mainzahyo.y / block_size][mainzahyo.x / block_size + 1] == landform_air){
 				mainzahyo.x += 2;
 				if(Input::KeyShift.pressed)mainzahyo.x += 2;
-				if(mainzahyo.x - corner_pos.x > 100){
-					//corner_pos.x += 2;
-				}
 			} else{
 				mainzahyo.x = mainzahyo.x / block_size * block_size;
 			}
 		}
 
-
 		if(Input::KeySpace.pressed && !jump){
 			jump = true;
 			//ジャンプ初速
 			if(Input::KeyShift.pressed){
-				main_vy = -6;
+				main_vy = -8;
 			} else{
-				main_vy = -5;
+				main_vy = -7;
 			}
 		}
 		if(jump){

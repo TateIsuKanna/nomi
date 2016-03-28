@@ -1,9 +1,9 @@
-﻿#include<stdio.h>
-#include<time.h>
-#include<math.h>
-#include<fstream>
-#include<iostream>
-#include<string>
+﻿//#include<stdio.h>
+//#include<time.h>
+//#include<math.h>
+//#include<fstream>
+//#include<iostream>
+//#include<string>
 
 //TODO:ヘッダーも用途ごとに分ける?
 
@@ -11,9 +11,12 @@
 
 //TODO:Size strc使えない?
 
-const int map_width = 120*2;
-const int map_height = 33;
+const int map_width = 240;
+const int map_height = 66;
 const int block_size = 20;
+
+const int view_width = 60;
+const int view_height = 20;
 
 void game_main();
 
