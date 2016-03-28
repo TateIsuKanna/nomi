@@ -1,5 +1,4 @@
-﻿#include<Siv3D.hpp>
-#include<stdio.h>
+﻿#include<stdio.h>
 #include<time.h>
 #include<math.h>
 #include<fstream>
@@ -8,11 +7,13 @@
 
 //TODO:ヘッダーも用途ごとに分ける?
 
+//TODO:enemy継承
+
 //TODO:Size strc使えない?
 
-const int map_width = 120;
+const int map_width = 120*2;
 const int map_height = 33;
-const int block_size = 10;
+const int block_size = 20;
 
 void game_main();
 
@@ -33,7 +34,6 @@ public:
 	Point zahyo;
 	LR walk_direction = Right;
 	LR search_floor = Right;
-	int search = 0;
 	void walk();
 	static void spawn();
 	static void draw();
@@ -112,3 +112,5 @@ extern char map[map_height][map_width + 2];
 
 extern LR main_muki;
 extern std::vector<enemy>enemy_list;
+
+extern Point corner_pos;

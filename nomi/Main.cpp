@@ -2,6 +2,8 @@
 #include<HamFramework.hpp>
 #include<windows.h>
 
+Point corner_pos(0, 0);
+
 Point mainzahyo;
 Point goalzahyo;
 char map[map_height][map_width + 2];//+2は\nとnull文字(マップパーサが簡易だからね)
@@ -84,23 +86,23 @@ void draw(){
 	background.scale(3).draw();
 
 	//map描画
-	for(int y = 0; y < map_height; y++){
-		for(int x = 0; x < map_width; x++){
+	for(int y = corner_pos.y / block_size; y < corner_pos.y / block_size + map_height; y++){
+		for(int x = corner_pos.x / block_size; x < corner_pos.x / block_size + 60; x++){
 			switch(map[y][x]){
 				case landform_land:
-					block1texture.draw(x * block_size, y * block_size);
+					block1texture.draw(x * block_size - corner_pos.x, y * block_size - corner_pos.y);
 					break;
 				case landform_land2:
-					block2texture.draw(x * block_size, y * block_size);
+					block2texture.draw(x * block_size - corner_pos.x, y * block_size - corner_pos.y);
 					break;
 				case landform_land3:
-					block3texture.draw(x * block_size, y * block_size);
+					block3texture.draw(x * block_size - corner_pos.x, y * block_size - corner_pos.y);
 					break;
 				case landform_land4:
-					block4texture.draw(x * block_size, y * block_size);
+					block4texture.draw(x * block_size - corner_pos.x, y * block_size - corner_pos.y);
 					break;
 				case landform_goal:
-					Rect(x * block_size, y * block_size, block_size, block_size).draw(Palette::Red);
+					Rect(x * block_size - corner_pos.x, y * block_size - corner_pos.y, block_size, block_size).draw(Palette::Red);
 					break;
 			}
 		}
@@ -110,16 +112,14 @@ void draw(){
 
 	//蚤描画
 	if(main_muki == Right){
-		nomitexture.mirror().draw(mainzahyo);
+		nomitexture.mirror().draw(mainzahyo - corner_pos);
 	} else{
-		nomitexture.draw(mainzahyo);
+		nomitexture.draw(mainzahyo - corner_pos);
 	}
-
-
 
 	//デバッグ用グリッド
 	if(DEBUG_grid){
-		Rect ma(mainzahyo.x / block_size*block_size, mainzahyo.y / block_size*block_size, block_size);
+		Rect ma((mainzahyo.x - corner_pos.x) / block_size*block_size, (mainzahyo.y - corner_pos.y) / block_size*block_size, block_size);
 		ma.drawFrame();
 	}
 }
@@ -130,7 +130,7 @@ bool IsInterger_Position(int pos){
 
 void game_main(){
 	srand((unsigned int)time(NULL));
-	//srand('y'+'y'+'s'+'k');
+	srand('y' + 'y' + 's' + 'k');
 	int score = 0;
 	double main_vy = 0;
 	const Font font(40);
@@ -165,7 +165,7 @@ void game_main(){
 	for(int y = 0; y < map_height; y++){
 		for(int x = 0; x < map_width; x++){
 			if(map[y][x] == landform_goal){
-				goalzahyo = Point(x * block_size, y * block_size);
+				goalzahyo = Point(x * block_size - corner_pos.x, y * block_size - corner_pos.y);
 			}
 			if(map[y][x] == landform_nomi){
 				mainzahyo = Point(x * block_size, y * block_size);
@@ -196,8 +196,10 @@ void game_main(){
 			Clear();
 		}
 
+		corner_pos = mainzahyo - Point(120 /2/2 * block_size, 33 / 2 * block_size);
+
 		//デバッグのための
-		if(Input::KeyControl.pressed){
+		if(Input::KeyControl.clicked){
 			mainzahyo = Mouse::Pos();
 			main_vy = 0;
 		}
@@ -231,6 +233,9 @@ void game_main(){
 			if(map[mainzahyo.y / block_size][mainzahyo.x / block_size + 1] == landform_air){
 				mainzahyo.x += 2;
 				if(Input::KeyShift.pressed)mainzahyo.x += 2;
+				if(mainzahyo.x - corner_pos.x > 100){
+					//corner_pos.x += 2;
+				}
 			} else{
 				mainzahyo.x = mainzahyo.x / block_size * block_size;
 			}
@@ -241,13 +246,13 @@ void game_main(){
 			jump = true;
 			//ジャンプ初速
 			if(Input::KeyShift.pressed){
-				main_vy = -4;
+				main_vy = -6;
 			} else{
-				main_vy = -3;
+				main_vy = -5;
 			}
 		}
 		if(jump){
-			main_vy += 0.1;//重力加速度積分
+			main_vy += 0.2;//重力加速度積分
 			mainzahyo.y += main_vy;//速度積分
 			if(main_vy < 0){
 				//天井衝突反転
@@ -332,9 +337,9 @@ void game_main(){
 				}
 			}
 		}
-		//波動拳移動
+		//波動拳描画移動
 		for(int n = 0; n < hado.size(); ++n){
-			Rect(hado[n].zahyo, block_size, block_size).draw(Palette::Aliceblue);
+			Rect(hado[n].zahyo - corner_pos, block_size, block_size).draw(Palette::Aliceblue);
 			if(hado[n].LRdirection){
 				hado[n].zahyo.x += 5;
 			} else{
