@@ -8,6 +8,8 @@ Point mainzahyo;
 Point goalzahyo;
 char map[map_height][map_width + 2];//+2は\nとnull文字(マップパーサが簡易だからね)
 
+int current_stage;
+
 legacy::TimerMillisec enemy::star_timer;
 unsigned int enemy::shot_time = 0;
 enemy::star_st enemy::stars[3];
@@ -17,9 +19,12 @@ bool DEBUG_grid;
 std::vector<enemy>enemy_list;
 LR main_muki = Left;
 
+
+Texture nomilogo;
 Texture icontexture;
 Texture background;
 Texture haetexture;
+Texture hadodantexture;
 Texture musitexture;
 Texture nomitexture;
 Texture startexture;
@@ -43,6 +48,9 @@ void Title(){
 
 	String message = L"蚤\nゲームスタート…Zキー\n終了…Esc";
 	Font font(50);
+
+	nomilogo = Texture(L"nomologo.png");
+
 	while(System::Update()){
 
 		////////////////////////
@@ -50,25 +58,32 @@ void Title(){
 		////////////////////////
 
 		font(message).draw();
-		if(Input::KeyZ.clicked||buf[4]==1){
+		nomilogo.draw(700, 0);
+		if(Input::KeyZ.clicked || buf[4] == 1){
 			//HACK:何度も呼び返す事になる(再帰みたいに)
 			game_main();
 		}
+
 	}
 }
 void Clear(){
+	++current_stage;
+	if(current_stage > number_of_stage - 1){
+		current_stage = 0;
+	}
 	Rect(0, 0, Window::Size()).draw(Palette::Black);
 
-	String message = L"ゴール!\nZでタイトルへ";
+	String message = L"ゴール!\nZで次のステージへ";
 	Font font(50);
 	while(System::Update()){
 		font(message).draw();
 		if(Input::KeyZ.clicked){
-			Title();
+			game_main();
 		}
 	}
 }
 void The_end(deathcause died_of){
+	current_stage = 0;
 	Rect(0, 0, Window::Size()).draw(Palette::Black);
 	String message = L"＿人人人人人人＿\n＞　the end.　＜\n￣Y^Y^Y^Y^Y￣\n\n";
 	switch(died_of){
@@ -91,8 +106,8 @@ void The_end(deathcause died_of){
 	legacy::TimerMillisec restartTimer;
 	restartTimer.start();
 	//TODO:Zで抜けるように
-	while(restartTimer.elapsed() < 2000){
-		
+	while(restartTimer.elapsed() < 1000){
+
 
 	}
 	Title();
@@ -119,11 +134,18 @@ void draw(){
 				case landform_goal:
 					Rect(x * block_size - corner_pos.x, y * block_size - corner_pos.y, block_size, block_size).draw(Palette::Red);
 					break;
+				case landform_air:
+					break;
+				default:
+					Rect(x * block_size - corner_pos.x, y * block_size - corner_pos.y, block_size, block_size).draw(Palette::Blue);
+					break;
 			}
 		}
 	}
 
 	enemy::draw();
+
+
 
 	//蚤描画
 	if(main_muki == Right){
@@ -145,15 +167,17 @@ bool IsInterger_Position(int pos){
 
 void game_main(){
 	srand((unsigned int)time(NULL));
-	//srand('y' + 'y' + 's' + 'k');
+	srand((unsigned char)'y' + (unsigned char)'y' + (unsigned char)'s' + (unsigned char)'k');
 	int score = 0;
 	double main_vy = 0;
 	const Font font(40);
 	bool jump = false;
+	bool jump2 = false;
 
 	std::vector<hadoken> hado;
 
 	icontexture = Texture(L"thumbnail.png");
+	hadodantexture = Texture(L"hadoudan.png");
 	haetexture = Texture(L"hae.png");
 	musitexture = Texture(L"musi.png");
 	nomitexture = Texture(L"nomi.png");
@@ -167,9 +191,11 @@ void game_main(){
 	//マップファイル読み込み
 	//TODO:ifstream使ってみよう
 	FILE *fp;
-	fopen_s(&fp, "map.txt", "r");
+	fopen_s(&fp, (std::string("stages/map") + std::to_string(current_stage) + std::string(".txt")).c_str(), "r");
 	int linep = 0;
 	while(fgets(&map[linep][0], map_width + 2, fp))linep += 1;
+
+
 	for(int y = 0; y < map_height; ++y){
 		for(int x = 0; x < map_width; ++x){
 			if(map[y][x] == ' '){
@@ -178,12 +204,20 @@ void game_main(){
 			map[y][x] -= '0';
 		}
 	}
+	fclose(fp);
+
+
+	/*std::ifstream ifs(std::string("stages/map")+ std::to_string(current_stage) + std::string(".txt"));
+	while(ifs.getline(map,sizeof(map[][]))){
+		std::cout << "[" << str << "]" << std::endl;
+	}*/
+
 
 	//ゴールと蚤の位置をmapから読み取る
 	for(int y = 0; y < map_height; y++){
 		for(int x = 0; x < map_width; x++){
 			if(map[y][x] == landform_goal){
-				goalzahyo = Point(3060, 1280);//Point(x * block_size - corner_pos.x, y * block_size - corner_pos.y);
+				goalzahyo = Point(x*block_size, y*block_size);
 			}
 			if(map[y][x] == landform_nomi){
 				mainzahyo = Point(x * block_size, y * block_size);
@@ -192,16 +226,10 @@ void game_main(){
 		}
 	}
 
+
 	enemy::spawn();
 
 	enemy::star_timer.start();
-
-
-
-
-
-
-
 
 	while(System::Update()){
 		Rect main_rect(mainzahyo, block_size, block_size);
@@ -284,8 +312,14 @@ void game_main(){
 			}
 		}
 
-		if((Input::KeySpace.pressed || buf[2] == 1) && !jump){
-			jump = true;
+		font(jump).draw(0, 0);
+		font(jump2).draw(0, 100);
+		if((Input::KeySpace.clicked || buf[2] == 1) && !jump2){
+			if(jump){
+				jump2 = true;
+			} else{
+				jump = true;
+			}
 			//ジャンプ初速
 			if(Input::KeyShift.pressed){
 				main_vy = -8;
@@ -293,13 +327,12 @@ void game_main(){
 				main_vy = -7;
 			}
 		}
-		if(jump){
+		if(jump || jump2){
 			main_vy += 0.2;//重力加速度積分
 			mainzahyo.y += main_vy;//速度積分
 			if(main_vy < 0){
 				//天井衝突反転
 				if(map[mainzahyo.y / block_size][mainzahyo.x / block_size] != landform_air || map[mainzahyo.y / block_size][mainzahyo.x / block_size + 1] != landform_air){
-					OutputDebugString(L"天井衝突反転");
 					main_vy *= -1;
 					mainzahyo.y = (mainzahyo.y / block_size + 1) * block_size;
 				}
@@ -308,17 +341,17 @@ void game_main(){
 				//床が来たら止まる
 				//UNDONE:もう少し確認
 				if(IsInterger_Position(mainzahyo.x)){
-					OutputDebugString(L"t");
 					if(map[mainzahyo.y / block_size + 1][mainzahyo.x / block_size] != landform_air){
 						main_vy = 0;
 						jump = false;
+						jump2 = false;
 						mainzahyo.y = mainzahyo.y / block_size * block_size;
 					}
 				} else{
-					OutputDebugString(L"f");
 					if(map[mainzahyo.y / block_size + 1][mainzahyo.x / block_size] != landform_air || map[mainzahyo.y / block_size + 1][mainzahyo.x / block_size + 1] != landform_air){
 						main_vy = 0;
 						jump = false;
+						jump2 = false;
 						mainzahyo.y = mainzahyo.y / block_size * block_size;
 					}
 				}
@@ -384,10 +417,11 @@ void game_main(){
 		}
 		//波動拳描画移動
 		for(int n = 0; n < hado.size(); ++n){
-			Rect(hado[n].zahyo - corner_pos, block_size, block_size).draw(Palette::Aliceblue);
 			if(hado[n].LRdirection){
+				hadodantexture.draw(hado[n].zahyo - corner_pos);
 				hado[n].zahyo.x += 10;
 			} else{
+				hadodantexture.mirror().draw(hado[n].zahyo - corner_pos);
 				hado[n].zahyo.x -= 10;
 			}
 		}

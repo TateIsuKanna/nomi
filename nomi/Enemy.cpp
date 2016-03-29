@@ -83,6 +83,7 @@ void enemy::draw(){
 	}
 }
 void enemy::spawn(){
+	enemy_list.clear();
 	//敵生成蝿
 	for(int y = 0; y < map_height; y++){
 		for(int x = 0; x < map_width; x++){

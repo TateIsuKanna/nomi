@@ -18,6 +18,8 @@ const int block_size = 20;
 const int view_width = 60;
 const int view_height = 20;
 
+const int number_of_stage = 3;
+
 void game_main();
 
 enum LR{
@@ -112,7 +114,6 @@ extern Texture block4texture;
 extern Point mainzahyo;
 extern Point goalzahyo;
 extern char map[map_height][map_width + 2];
-
 extern LR main_muki;
 extern std::vector<enemy>enemy_list;
 
