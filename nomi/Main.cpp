@@ -28,6 +28,12 @@ Texture block2texture;
 Texture block3texture;
 Texture block4texture;
 
+
+/////////////////////////////
+SOCKET sock;
+char buf[5];
+/////////////////////////////
+
 void Title(){
 	Window::Resize(view_width*block_size, view_height*block_size);
 	Window::SetTitle(L"蚤");
@@ -38,8 +44,14 @@ void Title(){
 	String message = L"蚤\nゲームスタート…Zキー\n終了…Esc";
 	Font font(50);
 	while(System::Update()){
+
+		////////////////////////
+		recv(sock, buf, sizeof(buf), 0);
+		////////////////////////
+
 		font(message).draw();
-		if(Input::KeyZ.clicked){
+		if(Input::KeyZ.clicked||buf[4]==1){
+			//HACK:何度も呼び返す事になる(再帰みたいに)
 			game_main();
 		}
 	}
@@ -79,7 +91,10 @@ void The_end(deathcause died_of){
 	legacy::TimerMillisec restartTimer;
 	restartTimer.start();
 	//TODO:Zで抜けるように
-	while(restartTimer.elapsed() < 2000){}
+	while(restartTimer.elapsed() < 2000){
+		
+
+	}
 	Title();
 }
 void draw(){
@@ -168,7 +183,7 @@ void game_main(){
 	for(int y = 0; y < map_height; y++){
 		for(int x = 0; x < map_width; x++){
 			if(map[y][x] == landform_goal){
-				goalzahyo = Point(3060,1280);//Point(x * block_size - corner_pos.x, y * block_size - corner_pos.y);
+				goalzahyo = Point(3060, 1280);//Point(x * block_size - corner_pos.x, y * block_size - corner_pos.y);
 			}
 			if(map[y][x] == landform_nomi){
 				mainzahyo = Point(x * block_size, y * block_size);
@@ -180,6 +195,13 @@ void game_main(){
 	enemy::spawn();
 
 	enemy::star_timer.start();
+
+
+
+
+
+
+
 
 	while(System::Update()){
 		Rect main_rect(mainzahyo, block_size, block_size);
@@ -218,7 +240,7 @@ void game_main(){
 
 		//デバッグのための
 		if(Input::KeyControl.clicked){
-			mainzahyo = Mouse::Pos()+corner_pos;
+			mainzahyo = Mouse::Pos() + corner_pos;
 			main_vy = 0;
 		}
 		if(Input::KeyA.pressed){
@@ -232,7 +254,13 @@ void game_main(){
 		}
 
 		//UNDONE:一見壁抜けしないようになったように見えるが完全ではないと思われる
-		if(Input::KeyLeft.pressed){
+
+
+		////////////////////////
+		recv(sock, buf, sizeof(buf), 0);
+		////////////////////////
+
+		if(Input::KeyLeft.pressed || buf[0] == 1){
 			main_muki = Left;
 			if(IsInterger_Position(mainzahyo.x)){
 				if(map[mainzahyo.y / block_size][mainzahyo.x / block_size - 1] == landform_air){
@@ -243,20 +271,20 @@ void game_main(){
 				}
 			} else{
 				mainzahyo.x -= 2;
-				if(Input::KeyShift.pressed)mainzahyo.x -= 2;
+				if(Input::KeyShift.pressed || buf[3] == 1)mainzahyo.x -= 2;
 			}
 		}
-		if(Input::KeyRight.pressed){
+		if(Input::KeyRight.pressed || buf[1] == 1){
 			main_muki = Right;
 			if(map[mainzahyo.y / block_size][mainzahyo.x / block_size + 1] == landform_air){
 				mainzahyo.x += 2;
-				if(Input::KeyShift.pressed)mainzahyo.x += 2;
+				if(Input::KeyShift.pressed || buf[3] == 1)mainzahyo.x += 2;
 			} else{
 				mainzahyo.x = mainzahyo.x / block_size * block_size;
 			}
 		}
 
-		if(Input::KeySpace.pressed && !jump){
+		if((Input::KeySpace.pressed || buf[2] == 1) && !jump){
 			jump = true;
 			//ジャンプ初速
 			if(Input::KeyShift.pressed){
@@ -297,7 +325,10 @@ void game_main(){
 			}
 		}
 
-		if(Input::KeyZ.clicked){
+		if(Input::KeyZ.clicked || buf[4] == 1){
+			////////////////////
+			buf[4] = 0;
+			////////////////////
 			if(hado.size() < 100){
 				hado.push_back({mainzahyo, main_muki});
 			}
@@ -370,5 +401,23 @@ void game_main(){
 }
 
 void Main(){
+
+	/////////////////////////////
+	WSAData wsaData;
+	WSAStartup(MAKEWORD(2, 0), &wsaData);
+
+	sock = socket(AF_INET, SOCK_DGRAM, 0);
+
+	struct sockaddr_in addr;
+	addr.sin_family = AF_INET;
+	addr.sin_port = htons(2002);
+	addr.sin_addr.S_un.S_addr = INADDR_ANY;
+
+	bind(sock, (struct sockaddr *)&addr, sizeof(addr));
+
+	u_long val = 1;
+	ioctlsocket(sock, FIONBIO, &val);
+	/////////////////////////////
+
 	Title();
 }
