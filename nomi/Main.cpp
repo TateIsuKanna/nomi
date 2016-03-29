@@ -22,6 +22,7 @@ LR main_muki = Left;
 
 Texture nomilogo;
 Texture icontexture;
+Texture gameovertexture;
 Texture background;
 Texture haetexture;
 Texture hadodantexture;
@@ -49,16 +50,14 @@ void Title(){
 	String message = L"蚤\nゲームスタート…Zキー\n終了…Esc";
 	Font font(50);
 
-	nomilogo = Texture(L"nomologo.png");
+	nomilogo = Texture(L"title.png");
 
 	while(System::Update()){
 
 		////////////////////////
 		recv(sock, buf, sizeof(buf), 0);
 		////////////////////////
-
-		font(message).draw();
-		nomilogo.draw(700, 0);
+		nomilogo.draw();
 		if(Input::KeyZ.clicked || buf[4] == 1){
 			//HACK:何度も呼び返す事になる(再帰みたいに)
 			game_main();
@@ -99,8 +98,11 @@ void The_end(deathcause died_of){
 	}
 	//TODO:どっちが好みか微妙(ここ以外にもあり)
 	//Font(40)(message).draw();
-	Font(40).draw(message);
+	
+	gameovertexture.draw();
+
 	System::Update();
+
 
 	//HACK:廃止される?
 	legacy::TimerMillisec restartTimer;
@@ -113,7 +115,7 @@ void The_end(deathcause died_of){
 	Title();
 }
 void draw(){
-	background.scale(3).draw();
+	background.scale(3).draw(-mainzahyo.x / 50, 0);
 
 	//map描画
 	for(int y = corner_pos.y / block_size; y < corner_pos.y / block_size + view_height + 1; y++){
@@ -144,8 +146,6 @@ void draw(){
 	}
 
 	enemy::draw();
-
-
 
 	//蚤描画
 	if(main_muki == Right){
@@ -179,6 +179,7 @@ void game_main(){
 	icontexture = Texture(L"thumbnail.png");
 	hadodantexture = Texture(L"hadoudan.png");
 	haetexture = Texture(L"hae.png");
+	gameovertexture = Texture(L"gameover.png");
 	musitexture = Texture(L"musi.png");
 	nomitexture = Texture(L"nomi.png");
 	background = Texture(L"Windmill.png");
@@ -243,6 +244,8 @@ void game_main(){
 		}
 
 		draw();
+
+		
 
 		//HACK:ゴールが壁扱いなので当たれるように3pixel拡大
 		Rect goal_rect(goalzahyo - Point(5, 5), block_size + 10, block_size + 10);
