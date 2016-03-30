@@ -8,6 +8,8 @@ Point mainzahyo;
 Point goalzahyo;
 char map[map_height][map_width + 2];//+2は\nとnull文字(マップパーサが簡易だからね)
 
+bool DEBUG_no_gameover;
+
 int current_stage;
 
 legacy::TimerMillisec enemy::star_timer;
@@ -18,7 +20,6 @@ bool DEBUG_grid;
 
 std::vector<enemy>enemy_list;
 LR main_muki = Left;
-
 
 Texture nomilogo;
 Texture icontexture;
@@ -82,6 +83,10 @@ void Clear(){
 	}
 }
 void The_end(deathcause died_of){
+	if(DEBUG_no_gameover){
+		return ;
+	}
+	
 	current_stage = 0;
 	Rect(0, 0, Window::Size()).draw(Palette::Black);
 	String message = L"＿人人人人人人＿\n＞　the end.　＜\n￣Y^Y^Y^Y^Y￣\n\n";
@@ -274,14 +279,14 @@ void game_main(){
 			mainzahyo = Mouse::Pos() + corner_pos;
 			main_vy = 0;
 		}
-		if(Input::KeyA.pressed){
-			hado.push_back({mainzahyo, main_muki});
-		}
 		if(Input::KeyC.clicked && Input::KeyAlt.pressed){
 			enemy_list.clear();
 		}
 		if(Input::KeyG.clicked && Input::KeyAlt.pressed){
 			DEBUG_grid = !DEBUG_grid;
+		}
+		if(Input::KeyE.clicked && Input::KeyAlt.pressed){
+			DEBUG_no_gameover = !DEBUG_no_gameover;
 		}
 
 		//UNDONE:一見壁抜けしないようになったように見えるが完全ではないと思われる
