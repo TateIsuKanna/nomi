@@ -1,7 +1,7 @@
-﻿#include"Header.h"
-//#include<HamFramework.hpp>
-//#include<windows.h>
+﻿//https://github.com/Reputeless/Siv3D-Reference/blob/master/Examples/SceneManager.md
+//シーン管理を使わなければならない!!!!!
 
+#include"Header.h"
 Point corner_pos(0, 0);
 
 Point mainzahyo;
@@ -442,8 +442,7 @@ void game_main(){
 	}
 }
 
-void Main(){
-
+int Main(){
 	/////////////////////////////
 	WSAData wsaData;
 	WSAStartup(MAKEWORD(2, 0), &wsaData);
@@ -462,4 +461,6 @@ void Main(){
 	/////////////////////////////
 
 	Title();
+
+	return 0;
 }

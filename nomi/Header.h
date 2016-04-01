@@ -1,11 +1,4 @@
-﻿//#include<stdio.h>
-//#include<time.h>
-//#include<math.h>
-//#include<fstream>
-//#include<iostream>
-//#include<string>
-
-//TODO:ヘッダーも用途ごとに分ける?
+﻿//TODO:ヘッダーも用途ごとに分ける?
 
 //TODO:enemy継承
 

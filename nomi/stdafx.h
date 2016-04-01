@@ -1,8 +1,6 @@
 #pragma once
 #include<Siv3D.hpp>
 
-
-//‚¢‚¢‚Ì‚©‚±‚ê‚Å?
 #include<stdio.h>
 #include<time.h>
 #include<math.h>
@@ -10,6 +8,6 @@
 #include<iostream>
 #include<string>
 
-//from main
+//from Main.cpp
 #include<HamFramework.hpp>
 #include<windows.h>
