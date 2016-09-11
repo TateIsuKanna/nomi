@@ -1,7 +1,16 @@
-﻿//TODO:ヘッダーも用途ごとに分ける?
+﻿#pragma once//TODO:必要性
+#include<Siv3D.hpp>
+#include<HamFramework.hpp>
 
+#include<stdio.h>
+#include<time.h>
+#include<math.h>
+#include<fstream>
+#include<iostream>
+#include<string>
+
+//TODO:ヘッダーも用途ごとに分ける?
 //TODO:enemy継承
-
 //TODO:Size strc使えない?
 
 const int map_width = 240;
@@ -20,7 +29,6 @@ enum LR{
 	Right = true
 };
 
-
 class enemy{
 public:
 	enum enemy_type{
@@ -38,9 +46,7 @@ public:
 
 	//流星群到来までの時間☆彡☆彡☆彡
 	static unsigned int shot_time;
-	//HACK:廃止される?
-	static legacy::TimerMillisec star_timer;
-
+	static Stopwatch star_timer;
 	enemy(Point p, enemy_type t){
 		zahyo = p;
 		type = t;

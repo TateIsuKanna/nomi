@@ -1,7 +1,7 @@
 ﻿//https://github.com/Reputeless/Siv3D-Reference/blob/master/Examples/SceneManager.md
 //シーン管理を使わなければならない!!!!!
-
 #include"Header.h"
+
 Point corner_pos(0, 0);
 
 Point mainzahyo;
@@ -12,7 +12,7 @@ bool DEBUG_no_gameover;
 
 int current_stage;
 
-legacy::TimerMillisec enemy::star_timer;
+Stopwatch enemy::star_timer;
 unsigned int enemy::shot_time = 0;
 enemy::star_st enemy::stars[3];
 
@@ -36,11 +36,6 @@ Texture block3texture;
 Texture block4texture;
 
 
-/////////////////////////////
-SOCKET sock;
-char buf[5];
-/////////////////////////////
-
 void Title(){
 	Window::Resize(view_width*block_size, view_height*block_size);
 	Window::SetTitle(L"蚤");
@@ -55,11 +50,8 @@ void Title(){
 
 	while(System::Update()){
 
-		////////////////////////
-		recv(sock, buf, sizeof(buf), 0);
-		////////////////////////
 		nomilogo.draw();
-		if(Input::KeyZ.clicked || buf[4] == 1){
+		if(Input::KeyZ.clicked ){
 			//HACK:何度も呼び返す事になる(再帰みたいに)
 			game_main();
 		}
@@ -109,13 +101,10 @@ void The_end(deathcause died_of){
 	System::Update();
 
 
-	//HACK:廃止される?
-	legacy::TimerMillisec restartTimer;
+	Stopwatch restartTimer;
 	restartTimer.start();
 	//TODO:Zで抜けるように
-	while(restartTimer.elapsed() < 1000){
-
-
+	while(restartTimer.ms() < 1000){
 	}
 	Title();
 }
@@ -292,11 +281,7 @@ void game_main(){
 		//UNDONE:一見壁抜けしないようになったように見えるが完全ではないと思われる
 
 
-		////////////////////////
-		recv(sock, buf, sizeof(buf), 0);
-		////////////////////////
-
-		if(Input::KeyLeft.pressed || buf[0] == 1){
+		if(Input::KeyLeft.pressed){// || buf[0] == 1){
 			main_muki = Left;
 			if(IsInterger_Position(mainzahyo.x)){
 				if(map[mainzahyo.y / block_size][mainzahyo.x / block_size - 1] == landform_air){
@@ -307,14 +292,18 @@ void game_main(){
 				}
 			} else{
 				mainzahyo.x -= 2;
-				if(Input::KeyShift.pressed || buf[3] == 1)mainzahyo.x -= 2;
+				if(Input::KeyShift.pressed){
+					mainzahyo.x -= 2;
+				}
 			}
 		}
-		if(Input::KeyRight.pressed || buf[1] == 1){
+		if(Input::KeyRight.pressed){
 			main_muki = Right;
 			if(map[mainzahyo.y / block_size][mainzahyo.x / block_size + 1] == landform_air){
 				mainzahyo.x += 2;
-				if(Input::KeyShift.pressed || buf[3] == 1)mainzahyo.x += 2;
+				if(Input::KeyShift.pressed){
+					mainzahyo.x += 2;
+				}
 			} else{
 				mainzahyo.x = mainzahyo.x / block_size * block_size;
 			}
@@ -322,7 +311,7 @@ void game_main(){
 
 		font(jump).draw(0, 0);
 		font(jump2).draw(0, 100);
-		if((Input::KeySpace.clicked || buf[2] == 1) && !jump2){
+		if((Input::KeySpace.clicked) && !jump2){
 			if(jump){
 				jump2 = true;
 			} else{
@@ -366,10 +355,7 @@ void game_main(){
 			}
 		}
 
-		if(Input::KeyZ.clicked || buf[4] == 1){
-			////////////////////
-			buf[4] = 0;
-			////////////////////
+		if(Input::KeyZ.clicked ){
 			if(hado.size() < 100){
 				hado.push_back({mainzahyo, main_muki});
 			}
@@ -442,25 +428,6 @@ void game_main(){
 	}
 }
 
-int Main(){
-	/////////////////////////////
-	WSAData wsaData;
-	WSAStartup(MAKEWORD(2, 0), &wsaData);
-
-	sock = socket(AF_INET, SOCK_DGRAM, 0);
-
-	struct sockaddr_in addr;
-	addr.sin_family = AF_INET;
-	addr.sin_port = htons(2002);
-	addr.sin_addr.S_un.S_addr = INADDR_ANY;
-
-	bind(sock, (struct sockaddr *)&addr, sizeof(addr));
-
-	u_long val = 1;
-	ioctlsocket(sock, FIONBIO, &val);
-	/////////////////////////////
-
+void Main(){
 	Title();
-
-	return 0;
 }

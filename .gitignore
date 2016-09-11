@@ -279,7 +279,13 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+#手動追加?
 提出ファイルテンプレ/meta.xml
 提出ファイルテンプレ/thumbnail.png
 提出ファイルテンプレ/readme.txt
 nomi/nomi_log.html
+nomi.VC.db
+
+#手書き追加
+Engine/

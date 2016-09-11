@@ -38,10 +38,10 @@ void enemy::walk(){
 			break;
 	}
 	//流星群移動
-	if(star_timer.elapsed() > shot_time){
+	if(star_timer.ms() > shot_time){
 		star_timer.reset();
 	}
-	if(star_timer.isPaused){
+	if(star_timer.isPaused()){
 		Rect main_rect(mainzahyo, block_size, block_size);
 		for(int i = 0; i < 3; ++i){
 			//HACK:Pointに対してVec2を足したい
