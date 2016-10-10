@@ -61,16 +61,16 @@ void enemy::draw(){
 		switch(enemy_list[n].type){
 			case enemy::enemy_type::enemy_type_hae:
 				if(enemy_list[n].walk_direction){
-					haetexture.draw(enemy_list[n].zahyo - corner_pos);
+					haetexture.draw(enemy_list[n].zahyo - window_corner_pos);
 				} else{
-					haetexture.mirror().draw(enemy_list[n].zahyo - corner_pos);
+					haetexture.mirror().draw(enemy_list[n].zahyo - window_corner_pos);
 				}
 				break;
 			case enemy::enemy_type::enemy_type_musi:
 				if(enemy_list[n].walk_direction){
-					musitexture.draw(enemy_list[n].zahyo - corner_pos);
+					musitexture.draw(enemy_list[n].zahyo - window_corner_pos);
 				} else{
-					musitexture.mirror().draw(enemy_list[n].zahyo - corner_pos);
+					musitexture.mirror().draw(enemy_list[n].zahyo - window_corner_pos);
 				}
 				break;
 			default:

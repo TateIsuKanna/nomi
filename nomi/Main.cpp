@@ -1,8 +1,9 @@
 ﻿//https://github.com/Reputeless/Siv3D-Reference/blob/master/Examples/SceneManager.md
-//シーン管理を使わなければならない!!!!!
+//HACK:シーン管理を使わなければならない!!!!!
+
 #include"Header.h"
 
-Point corner_pos(0, 0);
+Point window_corner_pos(0, 0);
 
 Point mainzahyo;
 Point goalzahyo;
@@ -34,7 +35,6 @@ Texture block1texture;
 Texture block2texture;
 Texture block3texture;
 Texture block4texture;
-
 
 void Title(){
 	Window::Resize(view_width*block_size, view_height*block_size);
@@ -112,28 +112,28 @@ void draw(){
 	background.scale(3).draw(-mainzahyo.x / 50, 0);
 
 	//map描画
-	for(int y = corner_pos.y / block_size; y < corner_pos.y / block_size + view_height + 1; y++){
-		for(int x = corner_pos.x / block_size; x < corner_pos.x / block_size + view_width + 1; x++){
+	for(int y = window_corner_pos.y / block_size; y < window_corner_pos.y / block_size + view_height + 1; y++){
+		for(int x = window_corner_pos.x / block_size; x < window_corner_pos.x / block_size + view_width + 1; x++){
 			switch(map[y][x]){
 				case landform_land:
-					block1texture.draw(x * block_size - corner_pos.x, y * block_size - corner_pos.y);
+					block1texture.draw(x * block_size - window_corner_pos.x, y * block_size - window_corner_pos.y);
 					break;
 				case landform_land2:
-					block2texture.draw(x * block_size - corner_pos.x, y * block_size - corner_pos.y);
+					block2texture.draw(x * block_size - window_corner_pos.x, y * block_size - window_corner_pos.y);
 					break;
 				case landform_land3:
-					block3texture.draw(x * block_size - corner_pos.x, y * block_size - corner_pos.y);
+					block3texture.draw(x * block_size - window_corner_pos.x, y * block_size - window_corner_pos.y);
 					break;
 				case landform_land4:
-					block4texture.draw(x * block_size - corner_pos.x, y * block_size - corner_pos.y);
+					block4texture.draw(x * block_size - window_corner_pos.x, y * block_size - window_corner_pos.y);
 					break;
 				case landform_goal:
-					Rect(x * block_size - corner_pos.x, y * block_size - corner_pos.y, block_size, block_size).draw(Palette::Red);
+					Rect(x * block_size - window_corner_pos.x, y * block_size - window_corner_pos.y, block_size, block_size).draw(Palette::Red);
 					break;
 				case landform_air:
 					break;
 				default:
-					Rect(x * block_size - corner_pos.x, y * block_size - corner_pos.y, block_size, block_size).draw(Palette::Blue);
+					Rect(x * block_size - window_corner_pos.x, y * block_size - window_corner_pos.y, block_size, block_size).draw(Palette::Blue);
 					break;
 			}
 		}
@@ -143,14 +143,14 @@ void draw(){
 
 	//蚤描画
 	if(main_muki == Right){
-		nomitexture.mirror().draw(mainzahyo - corner_pos);
+		nomitexture.mirror().draw(mainzahyo - window_corner_pos);
 	} else{
-		nomitexture.draw(mainzahyo - corner_pos);
+		nomitexture.draw(mainzahyo - window_corner_pos);
 	}
 
 	//デバッグ用グリッド
 	if(DEBUG_grid){
-		Rect ma((mainzahyo.x - corner_pos.x) / block_size*block_size, (mainzahyo.y - corner_pos.y) / block_size*block_size, block_size);
+		Rect ma((mainzahyo.x - window_corner_pos.x) / block_size*block_size, (mainzahyo.y - window_corner_pos.y) / block_size*block_size, block_size);
 		ma.drawFrame();
 	}
 }
@@ -249,23 +249,23 @@ void game_main(){
 
 		//画面スクロール
 		if(mainzahyo.x < view_width / 2 * block_size){
-			corner_pos.x = 0;
+			window_corner_pos.x = 0;
 		} else if(mainzahyo.x >(map_width - view_width / 2)*block_size){
-			corner_pos.x = (map_width - view_width)* block_size;
+			window_corner_pos.x = (map_width - view_width)* block_size;
 		} else{
-			corner_pos.x = mainzahyo.x - (view_width / 2 * block_size);
+			window_corner_pos.x = mainzahyo.x - (view_width / 2 * block_size);
 		}
 		if(mainzahyo.y < view_height / 2 * block_size){
-			corner_pos.y = 0;
+			window_corner_pos.y = 0;
 		} else if(mainzahyo.y >(map_height - view_height / 2)*block_size){
-			corner_pos.y = (map_height - view_height)* block_size;
+			window_corner_pos.y = (map_height - view_height)* block_size;
 		} else{
-			corner_pos.y = mainzahyo.y - view_height / 2 * block_size;
+			window_corner_pos.y = mainzahyo.y - view_height / 2 * block_size;
 		}
 
 		//デバッグのための
 		if(Input::KeyControl.clicked){
-			mainzahyo = Mouse::Pos() + corner_pos;
+			mainzahyo = Mouse::Pos() + window_corner_pos;
 			main_vy = 0;
 		}
 		if(Input::KeyC.clicked && Input::KeyAlt.pressed){
@@ -412,10 +412,10 @@ void game_main(){
 		//波動拳描画移動
 		for(int n = 0; n < hado.size(); ++n){
 			if(hado[n].LRdirection){
-				hadodantexture.draw(hado[n].zahyo - corner_pos);
+				hadodantexture.draw(hado[n].zahyo - window_corner_pos);
 				hado[n].zahyo.x += 10;
 			} else{
-				hadodantexture.mirror().draw(hado[n].zahyo - corner_pos);
+				hadodantexture.mirror().draw(hado[n].zahyo - window_corner_pos);
 				hado[n].zahyo.x -= 10;
 			}
 		}

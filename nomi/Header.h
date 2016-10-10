@@ -116,4 +116,4 @@ extern char map[map_height][map_width + 2];
 extern LR main_muki;
 extern std::vector<enemy>enemy_list;
 
-extern Point corner_pos;
+extern Point window_corner_pos;

@@ -289,3 +289,4 @@ nomi.VC.db
 
 #手書き追加
 Engine/
+*.opendb
