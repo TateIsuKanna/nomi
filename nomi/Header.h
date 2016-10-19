@@ -1,13 +1,4 @@
 ﻿#pragma once//TODO:必要性
-#include<Siv3D.hpp>
-#include<HamFramework.hpp>
-
-#include<stdio.h>
-#include<time.h>
-#include<math.h>
-#include<fstream>
-#include<iostream>
-#include<string>
 
 //TODO:ヘッダーも用途ごとに分ける?
 //TODO:enemy継承
@@ -22,16 +13,14 @@ const int view_height = 20;
 
 const int number_of_stage = 3;
 
-void game_main();
-
-enum LR{
+enum LR {
 	Left = false,
 	Right = true
 };
 
-class enemy{
+class enemy {
 public:
-	enum enemy_type{
+	enum enemy_type {
 		enemy_type_hae = 1,
 		enemy_type_musi,
 		enemy_type_star
@@ -43,19 +32,16 @@ public:
 	void walk();
 	static void spawn();
 	static void draw();
-
-	//流星群到来までの時間☆彡☆彡☆彡
-	static unsigned int shot_time;
-	static Stopwatch star_timer;
-	enemy(Point p, enemy_type t){
+	enemy(Point p, enemy_type t) {
 		zahyo = p;
 		type = t;
 	}
-	struct star_st{
+
+
+	struct star_st {
 		Point zahyo;
 		Vec2 v;
 	};
-	static star_st stars[];
 private:
 
 };
@@ -69,7 +55,7 @@ private:
 
 
 
-enum landform{
+enum landform {
 	landform_air,
 	landform_land,
 	landform_land2,
@@ -81,23 +67,22 @@ enum landform{
 	landform_nomi
 };
 
-class mainchara{
+class mainchara {
 	static Point zahyo;
 	static LR LRdirection;
 	static double vy;
 };
 
-struct hadoken{
+struct hadoken {
 	Point zahyo;
 	LR LRdirection;
 };
 
-enum deathcause{
+enum deathcause {
 	collision,
 	fall
 };
 
-void The_end(deathcause died_of);
 
 extern Texture icontexture;
 extern Texture background;
@@ -117,3 +102,4 @@ extern LR main_muki;
 extern std::vector<enemy>enemy_list;
 
 extern Point window_corner_pos;
+extern enemy::star_st stars[3];
