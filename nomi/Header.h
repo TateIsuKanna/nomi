@@ -38,9 +38,9 @@ public:
 		Vec2 v;
 	};
 
-	virtual void walk()const{};//HACK:{}これでいいのかあと謎const
-	virtual	void draw()const{};//HACK:{}これでいいのかあと謎const
-	static void spawn(std::vector<enemy*> &, star_st[],std::vector<enemy> &);
+	virtual void walk(){};
+	virtual	void draw(){};
+	static void spawn(std::vector<enemy*> &, star_st[]);
 private:
 
 };
