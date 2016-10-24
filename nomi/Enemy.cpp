@@ -81,9 +81,9 @@ void enemy::spawn(std::vector<enemy*> &enemy_list, enemy::star_st stars[]) {
 	}
 
 	//敵生成星
-	for (int n = 0; n < 3; ++n) {
-		stars[n].zahyo = Point(rand() % (map_width*block_size), 0);
-		double kakudo = (rand() % 120 + 30)*(Pi / 180);
-		stars[n].v = Vec2(Cos(kakudo) * 6, Sin(kakudo) * 6);
+	for (int n = 0; n < 5; ++n) {
+		stars[n].zahyo = Point(rand() % (map_width*block_size), block_size);
+		double kakudo = (rand() % 80+90)*(Pi / 180);
+		stars[n].v = Vec2(Cos(kakudo), Sin(kakudo));
 	}
 }

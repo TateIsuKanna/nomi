@@ -11,14 +11,18 @@ Point window_corner_pos;
 struct CommonData {
 	deathcause died_of;
 	Font font{ 50 };
+	int current_stage;
 };
 
 using MyApp = SceneManager<String, CommonData>;
 class Title : public MyApp::Scene {
 public:
 	Texture nomilogo = Texture(L"title.png");
+	
 	void update() override {
+
 		if (Input::KeyZ.clicked) {
+			m_data->current_stage = 2;
 			changeScene(L"Game");
 		}
 	}
@@ -37,7 +41,6 @@ public:
 class Game : public MyApp::Scene {
 public:
 	Texture icontexture;
-	Texture gameovertexture;
 	Texture nomitexture;
 	Texture background;
 	Texture startexture;
@@ -47,7 +50,6 @@ public:
 	Texture block4texture;
 	Font font{ 40 };//TODO:constにする?
 	//srand((unsigned int)time(NULL));//TODO:
-	int current_stage;
 	Point goalzahyo;
 
 	int score = 0;
@@ -61,17 +63,17 @@ public:
 	std::vector<hadoken> hado;
 
 	std::vector<enemy*>enemy_list;
-	enemy::star_st stars[3];
+	enemy::star_st stars[5];
 
-	//流星群到来までの時間☆彡☆彡☆彡
+
 	Stopwatch star_timer;
-	unsigned int shot_time = 0;
+	//流星群到来までの時間☆彡☆彡☆彡
+	const unsigned int shot_time = 1;
 
 	void init() override {
 		icontexture = Texture(L"thumbnail.png");
 		hadodantexture = Texture(L"hadoudan.png");
 		haetexture = Texture(L"hae.png");
-		gameovertexture = Texture(L"gameover.png");
 		musitexture = Texture(L"musi.png");
 		nomitexture = Texture(L"nomi.png");
 		background = Texture(L"Windmill.png");
@@ -83,7 +85,7 @@ public:
 		//マップファイル読み込み
 		//TODO:ifstream使う
 		FILE *fp;
-		fopen_s(&fp, (std::string("stages/map") + std::to_string(current_stage) + std::string(".txt")).c_str(), "r");
+		fopen_s(&fp, (std::string("stages/map") + std::to_string(m_data-> current_stage) + std::string(".txt")).c_str(), "r");
 
 		int linep = 0;
 		while (fgets(&map[linep][0], map_width + 2, fp))linep += 1;
@@ -124,15 +126,14 @@ public:
 		return (double)pos / block_size - pos / block_size == 0;
 	}
 	void update() override {
-
-
 		Rect main_rect(mainzahyo, block_size, block_size);
 		for (int n = 0; n < enemy_list.size(); ++n) {
 			enemy_list[n]->walk();
 			//蚤と敵との衝突判定
 			Rect enemy_rect(enemy_list[n]->zahyo, block_size, block_size);
 			if (main_rect.intersects(enemy_rect)) {
-				changeScene(L"Result");
+				m_data->died_of = collision;
+				changeScene(L"Gameover");
 			}
 		}
 
@@ -258,7 +259,8 @@ public:
 
 		//転落死
 		if (mainzahyo.y >= (map_height - 1) * block_size) {
-			changeScene(L"Result");
+			m_data->died_of = fall;
+			changeScene(L"Gameover");
 		}
 
 		//波動拳壁衝突
@@ -309,21 +311,21 @@ public:
 			}
 		}
 		//流星群移動
-		//if (star_timer.ms() > shot_time) {
-		//	star_timer.reset();
-		//}
-		//if (star_timer.isPaused()) {
-		//	Rect main_rect(mainzahyo, block_size, block_size);
-		//	for (int i = 0; i < 3; ++i) {
-		//		//HACK:Pointに対してVec2を足したい
-		//		stars[i].zahyo.x += stars[i].v.x;
-		//		stars[i].zahyo.y += stars[i].v.y;
-		//		Rect star_rect(stars[i].zahyo, block_size, block_size);
-		//		if (main_rect.intersects(star_rect)) {
-		//			//UNDONE:抜けなければならない
-		//		}
-		//	}
-		//}
+		if (star_timer.ms() > shot_time) {
+			star_timer.reset();
+		}
+		if (!star_timer.isPaused()) {
+			Rect main_rect(mainzahyo, block_size, block_size);
+			for (int i = 0; i < 5; ++i) {
+				//HACK:Pointに対してVec2を足したい
+				stars[i].zahyo.x += stars[i].v.x;
+				stars[i].zahyo.y += stars[i].v.y;
+				Rect star_rect(stars[i].zahyo, block_size, block_size);
+				if (main_rect.intersects(star_rect)) {
+					changeScene(L"Gameover");
+				}
+			}
+		}
 	}
 
 	void draw() const override {
@@ -390,10 +392,10 @@ public:
 	}
 };
 
-class Result : public MyApp::Scene {
+class Gameover : public MyApp::Scene {
 public:
 	Texture gameovertexture = Texture(L"gameover.png");
-
+	Font font{ 40 };//HACK:
 	void update() override {
 		if (Input::KeyZ.clicked) {
 			changeScene(L"Title");
@@ -414,29 +416,32 @@ public:
 			message += L"不正な死に方をしました．";
 			break;
 		}
-		//TODO:どっちが好みか微妙(ここ以外にもあり)
-		//Font(40)(message).draw();
-
 		gameovertexture.draw();
+		font(message).draw();
 	}
 };
+class Result : public MyApp::Scene {
+public:
+	Texture cleartexture = Texture(L"蚤ゴール.png");
+	Font font{ 40 };//HACK:
+	void update() override {
+		if (Input::KeyZ.clicked) {
+			if ((m_data->current_stage+2) > number_of_stage) {
+				changeScene(L"Title");
 
-void Clear() {
-	//++current_stage;
-	//if (current_stage > number_of_stage - 1) {
-	//	current_stage = 0;
-	//}
-	//Rect(0, 0, Window::Size()).draw(Palette::Black);
+			} else {
+				m_data->current_stage++;
 
-	//String message = L"ゴール!\nZで次のステージへ";
-	//Font font(50);
-	//while (System::Update()) {
-	//	font(message).draw();
-	//	if (Input::KeyZ.clicked) {
-	//		game_main();
-	//	}
-	//}
-}
+				changeScene(L"Game");
+			}
+			
+		}
+	}
+	void draw() const override {
+		Rect(0, 0, Window::Size()).draw(Palette::Blue);
+		cleartexture.draw();
+	}
+};
 
 void Main() {
 	enemy::musi_texture = Texture(L"musi.png");
@@ -445,6 +450,7 @@ void Main() {
 	manager.add<Title>(L"Title");
 	manager.add<Game>(L"Game");
 	manager.add<Result>(L"Result");
+	manager.add<Gameover>(L"Gameover");
 
 	while (System::Update()) {
 		manager.updateAndDraw();
