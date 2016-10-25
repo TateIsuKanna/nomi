@@ -22,7 +22,7 @@ public:
 	void update() override {
 
 		if (Input::KeyZ.clicked) {
-			m_data->current_stage = 2;
+			m_data->current_stage = 0;
 			changeScene(L"Game");
 		}
 	}
